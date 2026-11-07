@@ -276,6 +276,7 @@ export default function App() {
             />
           ) : selectedPlanet ? (
             <QuizScreen
+              key={selectedPlanet.id}
               planet={selectedPlanet}
               onBackToMap={handleBackToMap}
               onSuccess={handleStageSuccess}

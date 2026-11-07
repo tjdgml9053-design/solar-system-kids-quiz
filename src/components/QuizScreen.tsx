@@ -53,6 +53,20 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     return list.sort(() => Math.random() - 0.5);
   }, [planet.id]);
 
+  // Reset quiz state whenever a new planet is selected or Next Planet is clicked
+  useEffect(() => {
+    setCurrentClueStep(1);
+    setAttempts(0);
+    setIsAnsweredCorrectly(false);
+    setSelectedWrongOptions([]);
+    setEarnedStars(0);
+    setUnlockedBadgesModal([]);
+    setRobotMood('speaking');
+    const firstClue = planet.clues.find(c => c.step === 1);
+    setRobotMessage('안녕! 이번에 탐험할 행성이야! 힌트를 잘 듣고 어떤 행성인지 맞혀봐!');
+    setTtsVoiceText(firstClue?.robotVoice || '');
+  }, [planet.id]);
+
   // When step changes, update robot clue and speak
   useEffect(() => {
     const clue = planet.clues.find(c => c.step === currentClueStep);
