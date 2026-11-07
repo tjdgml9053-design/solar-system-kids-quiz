@@ -11,6 +11,7 @@ import { StorageService } from './services/storage';
 import { soundService } from './services/sound';
 import { ttsService } from './services/tts';
 import { HeaderNav } from './components/HeaderNav';
+import { TitleScreen } from './components/TitleScreen';
 import { SolarSystemMap } from './components/SolarSystemMap';
 import { QuizScreen } from './components/QuizScreen';
 import { BadgeBook } from './components/BadgeBook';
@@ -19,7 +20,7 @@ import { AstronautLicenseModal } from './components/AstronautLicenseModal';
 
 export default function App() {
   const [profile, setProfile] = useState<PlayerProfile>(() => StorageService.getProfile());
-  const [activeView, setActiveView] = useState<'map' | 'quiz'>('map');
+  const [activeView, setActiveView] = useState<'title' | 'map' | 'quiz'>('title');
   const [selectedPlanet, setSelectedPlanet] = useState<PlanetData | null>(null);
 
   // Modals
@@ -250,11 +251,22 @@ export default function App() {
           onOpenLeaderboard={() => setShowLeaderboard(true)}
           onOpenLicense={handleOpenLicense}
           onResetProgress={handleResetProgress}
+          onGoHome={() => setActiveView('title')}
         />
 
-        {/* View Switcher: Solar System Map vs Quiz Screen */}
+        {/* View Switcher: Title Screen vs Solar System Map vs Quiz Screen */}
         <main className="flex-1 flex flex-col items-center justify-start pb-10">
-          {activeView === 'map' ? (
+          {activeView === 'title' ? (
+            <TitleScreen
+              profile={profile}
+              onUpdateProfile={updateProfile}
+              onStartGame={() => setActiveView('map')}
+              onOpenLeaderboard={() => setShowLeaderboard(true)}
+              onOpenBadges={() => setShowBadges(true)}
+              soundEnabled={soundEnabled}
+              onToggleSound={handleToggleSound}
+            />
+          ) : activeView === 'map' ? (
             <SolarSystemMap
               progress={profile.progress}
               currentPlanetId={selectedPlanet?.id || null}

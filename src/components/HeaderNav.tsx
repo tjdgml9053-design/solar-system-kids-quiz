@@ -8,7 +8,8 @@ import {
   Mic,
   MicOff,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Home
 } from 'lucide-react';
 import { PlayerProfile } from '../types/game';
 import { soundService } from '../services/sound';
@@ -24,6 +25,7 @@ interface HeaderNavProps {
   onOpenLeaderboard: () => void;
   onOpenLicense: () => void;
   onResetProgress: () => void;
+  onGoHome?: () => void;
 }
 
 export const HeaderNav: React.FC<HeaderNavProps> = ({
@@ -36,6 +38,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onOpenLeaderboard,
   onOpenLicense,
   onResetProgress,
+  onGoHome,
 }) => {
   const badgeCount = profile.badges.length;
 
@@ -72,6 +75,20 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* Home Button to return to Title Screen */}
+          {onGoHome && (
+            <button
+              onClick={() => {
+                soundService.playClick();
+                onGoHome();
+              }}
+              className="p-2 rounded-2xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 text-yellow-300 transition-all active:scale-95"
+              title="메인 화면으로 이동"
+            >
+              <Home className="w-4 h-4" />
+            </button>
+          )}
+
           {/* Star Counter Pill */}
           <div className="flex items-center gap-1.5 bg-indigo-950/90 border border-yellow-400/40 px-2.5 py-1.5 rounded-2xl shadow-inner">
             <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 animate-pulse" />
