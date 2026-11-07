@@ -30,9 +30,14 @@
    - 10종의 우주 탐험 공식 배지 수집.
    - 나만의 대원 사진(이모지)과 도장이 찍힌 공인 우주 비행사 면허증 발급 및 인쇄 기능.
 
-6. **브라우저 로컬 캐시 영구 저장 리더보드**
-   - 모든 점수, 모은 별, 새로 추가한 친구들의 기록이 브라우저 캐시(`localStorage`)에 영구 저장됩니다.
-   - 친구의 이름과 점수를 새로 등록하여 함께 순위를 겨룰 수 있습니다.
+6. **구글 파이어베이스(Firestore) 실시간 리더보드 & 첫 화면 바로가기**
+   - 구글 파이어베이스 Firestore와 `onSnapshot` 실시간 리스너로 연결되어 전 세계/친구들의 점수와 랭킹이 실시간으로 동기화됩니다.
+   - 첫 화면(메인 타이틀)에 **'🏆 실시간 명예의 전당 (리더보드)'** 바로가기 링크가 제공되어 게임 시작 전 언제든 확인할 수 있습니다.
+   - 모든 대원 데이터 및 오프라인 상태 점수는 브라우저 캐시(`localStorage`)에도 안전하게 영구 저장됩니다.
+
+7. **행성 퀴즈 랜덤 순서 진행 & 리셋 기능**
+   - 태양계 고정 순서 대신 10개 행성이 매 탐험마다 **무작위(랜덤) 순서로 배정**되어 흥미를 높입니다.
+   - 우측 상단 회전 화살표(🔄)를 누르면 게임 진행 상황이 초기화되고 **새로운 무작위 탐험 경로**가 셔플됩니다.
 
 ---
 
@@ -40,11 +45,12 @@
 
 - **Framework**: React 19, TypeScript
 - **Bundler**: Vite
+- **Database & Cloud**: Google Firebase (Firestore 실시간 데이터베이스)
 - **Styling**: Tailwind CSS
 - **Animation & Confetti**: Motion, Canvas-Confetti
 - **Icons**: Lucide React
 - **Audio & Speech**: Web Audio API, Web Speech API (TTS)
-- **Data Persistence**: Browser Cache (LocalStorage)
+- **Data Persistence**: Google Firebase Firestore + Browser Cache (LocalStorage)
 
 ---
 
@@ -63,13 +69,7 @@ npm run build
 
 ---
 
-## 📦 GitHub 저장소에 올리는 방법 (How to Push)
+## 📦 GitHub 저장소
 
-```bash
-# 1. 원격 저장소 연결 (GitHub에서 생성한 새 리포지토리 URL)
-git remote add origin https://github.com/사용자이름/저장소이름.git
-
-# 2. 메인 브랜치 설정 및 푸시
-git branch -M main
-git push -u origin main
-```
+- **Repository**: [https://github.com/tjdgml9053-design/solar-system-kids-quiz](https://github.com/tjdgml9053-design/solar-system-kids-quiz)
+- **Branch**: `main`
