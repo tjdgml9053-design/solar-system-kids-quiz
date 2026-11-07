@@ -130,7 +130,12 @@ export const SolarSystemMap: React.FC<SolarSystemMapProps> = ({
               {/* Planet Graphic */}
               <div className="my-2 relative flex items-center justify-center">
                 {isUnlocked ? (
-                  <PlanetVisual planetId={planet.id} size={95} className="group-hover:scale-110 transition-transform" />
+                  <PlanetVisual
+                    planetId={planet.id}
+                    size={95}
+                    isSilhouette={!isCleared}
+                    className="group-hover:scale-110 transition-transform"
+                  />
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-slate-800/90 flex flex-col items-center justify-center border-2 border-dashed border-slate-600">
                     <Lock className="w-8 h-8 text-slate-500 mb-1" />
@@ -142,9 +147,11 @@ export const SolarSystemMap: React.FC<SolarSystemMapProps> = ({
               {/* Planet Name */}
               <div className="text-center mt-2 w-full">
                 <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-yellow-300 transition-colors">
-                  {planet.name}
+                  {isCleared ? planet.name : '?? 수수께끼 별'}
                 </h3>
-                <p className="text-xs text-indigo-300 font-semibold">{planet.englishName}</p>
+                <p className="text-xs text-indigo-300 font-semibold">
+                  {isCleared ? planet.englishName : '퀴즈를 풀고 맞혀보세요!'}
+                </p>
               </div>
 
               {/* Stars Earned */}
