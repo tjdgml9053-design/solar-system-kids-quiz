@@ -214,6 +214,8 @@ export default function App() {
 
   const handleResetProgress = () => {
     soundService.playClick();
+    const fresh = StorageService.resetCurrentProfile();
+    setProfile(fresh);
     setSelectedPlanet(null);
     setActiveView('title');
   };

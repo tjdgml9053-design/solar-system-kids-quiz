@@ -139,18 +139,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {ttsEnabled ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
           </button>
 
-          {/* Rotating Arrow Button in Top Right: returns to first main screen */}
+          {/* Rotating Arrow Button in Top Right: resets quiz progress and returns to main title screen */}
           <button
             onClick={() => {
               soundService.playClick();
-              if (onGoHome) {
-                onGoHome();
-              } else if (onResetProgress) {
-                onResetProgress();
-              }
+              onResetProgress();
             }}
-            className="p-2 rounded-2xl bg-indigo-950/80 hover:bg-indigo-900 text-yellow-300 border border-indigo-500/40 transition-all active:scale-95 shadow"
-            title="처음 메인 화면으로 돌아가기"
+            className="p-2 rounded-2xl bg-indigo-950/80 hover:bg-rose-950 text-indigo-300 hover:text-rose-300 border border-indigo-500/40 transition-all active:scale-95 shadow"
+            title="게임 리셋 및 처음 메인 화면으로 이동"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
