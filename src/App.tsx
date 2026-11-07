@@ -213,12 +213,9 @@ export default function App() {
   };
 
   const handleResetProgress = () => {
-    if (confirm('탐험 기록과 모은 별을 처음부터 다시 시작할까요? (친구 랭킹 기록은 유지돼요!)')) {
-      soundService.playWrong();
-      const fresh = StorageService.resetCurrentProfile();
-      setProfile(fresh);
-      setActiveView('map');
-    }
+    soundService.playClick();
+    setSelectedPlanet(null);
+    setActiveView('title');
   };
 
   const hasNextPlanet =
@@ -251,7 +248,10 @@ export default function App() {
           onOpenLeaderboard={() => setShowLeaderboard(true)}
           onOpenLicense={handleOpenLicense}
           onResetProgress={handleResetProgress}
-          onGoHome={() => setActiveView('title')}
+          onGoHome={() => {
+            setSelectedPlanet(null);
+            setActiveView('title');
+          }}
         />
 
         {/* View Switcher: Title Screen vs Solar System Map vs Quiz Screen */}

@@ -75,19 +75,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2.5">
-          {/* Home Button to return to Title Screen */}
-          {onGoHome && (
-            <button
-              onClick={() => {
-                soundService.playClick();
-                onGoHome();
-              }}
-              className="p-2 rounded-2xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 text-yellow-300 transition-all active:scale-95"
-              title="메인 화면으로 이동"
-            >
-              <Home className="w-4 h-4" />
-            </button>
-          )}
 
           {/* Star Counter Pill */}
           <div className="flex items-center gap-1.5 bg-indigo-950/90 border border-yellow-400/40 px-2.5 py-1.5 rounded-2xl shadow-inner">
@@ -152,11 +139,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {ttsEnabled ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
           </button>
 
-          {/* Reset progress button */}
+          {/* Rotating Arrow Button in Top Right: returns to first main screen */}
           <button
-            onClick={onResetProgress}
-            className="p-2 rounded-2xl bg-indigo-950/80 hover:bg-rose-950 text-indigo-400 hover:text-rose-300 border border-indigo-500/30 transition-all active:scale-95"
-            title="탐험 처음부터 다시하기"
+            onClick={() => {
+              soundService.playClick();
+              if (onGoHome) {
+                onGoHome();
+              } else if (onResetProgress) {
+                onResetProgress();
+              }
+            }}
+            className="p-2 rounded-2xl bg-indigo-950/80 hover:bg-indigo-900 text-yellow-300 border border-indigo-500/40 transition-all active:scale-95 shadow"
+            title="처음 메인 화면으로 돌아가기"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
