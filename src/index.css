@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+body {
+  font-family: 'Jua', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background-color: #0b0d1b;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* Custom glowing and pulsing animations for kindergarten theme */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
