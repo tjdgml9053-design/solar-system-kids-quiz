@@ -62,6 +62,7 @@ export interface PlayerProfile {
   scoreTotal: number;
   progress: Record<string, StageProgress>;
   badges: string[]; // Badge IDs
+  missionOrder?: string[]; // Randomized planet ID sequence
   ttsEnabled: boolean;
   soundEnabled: boolean;
   createdAt: string;

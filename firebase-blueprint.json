@@ -1,0 +1,56 @@
+{
+  "entities": {
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "7세 우주 탐험대 리더보드 점수 및 별 획득 기록",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "기록 고유 ID",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "대원(친구) 이름",
+          "maxLength": 32,
+          "minLength": 1
+        },
+        "avatar": {
+          "type": "string",
+          "description": "대원 캐릭터 이모지",
+          "maxLength": 16
+        },
+        "badgeTitle": {
+          "type": "string",
+          "description": "칭호 명칭",
+          "maxLength": 64
+        },
+        "score": {
+          "type": "number",
+          "description": "획득 점수"
+        },
+        "stars": {
+          "type": "number",
+          "description": "모은 별 개수"
+        },
+        "clearedCount": {
+          "type": "number",
+          "description": "정복한 행성 개수"
+        },
+        "date": {
+          "type": "string",
+          "description": "기록 일자",
+          "maxLength": 32
+        }
+      },
+      "required": ["name", "score", "stars", "clearedCount"]
+    }
+  },
+  "firestore": {
+    "/leaderboard/{entryId}": {
+      "schema": "LeaderboardEntry",
+      "description": "어린이 우주 탐험대 실시간 리더보드 랭킹 컬렉션"
+    }
+  }
+}

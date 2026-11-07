@@ -115,28 +115,35 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
           <span>게임 시작하기!</span>
         </button>
 
-        {/* Secondary Navigation Buttons */}
-        <div className="grid grid-cols-3 gap-2 w-full pt-1">
-          <button
-            onClick={() => {
-              soundService.playClick();
-              onOpenLeaderboard();
-            }}
-            className="py-3 px-2 rounded-2xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 text-indigo-100 font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1 transition-transform active:scale-95 shadow"
-          >
-            <Trophy className="w-5 h-5 text-yellow-400" />
-            <span>명예의 전당</span>
-          </button>
+        {/* Real-time Firebase Leaderboard Link Button */}
+        <button
+          onClick={() => {
+            soundService.playClick();
+            onOpenLeaderboard();
+          }}
+          className="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-900/90 via-purple-900/90 to-indigo-900/90 hover:from-indigo-800 hover:to-purple-800 border-2 border-yellow-400/70 text-yellow-300 font-black text-sm sm:text-base rounded-2xl shadow-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+            <span>실시간 친구 리더보드 (명예의 전당)</span>
+          </div>
+          <span className="text-xs bg-yellow-400 text-indigo-950 font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping" />
+            순위 보기 &gt;
+          </span>
+        </button>
 
+        {/* Secondary Navigation Buttons */}
+        <div className="grid grid-cols-2 gap-2 w-full pt-1">
           <button
             onClick={() => {
               soundService.playClick();
               onOpenBadges();
             }}
-            className="py-3 px-2 rounded-2xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 text-indigo-100 font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1 transition-transform active:scale-95 shadow"
+            className="py-3 px-2 rounded-2xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 text-indigo-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow"
           >
-            <Award className="w-5 h-5 text-yellow-400" />
-            <span>배지 도감</span>
+            <Award className="w-4 h-4 text-yellow-400" />
+            <span>내 배지 도감</span>
           </button>
 
           <button
@@ -144,10 +151,10 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
               soundService.playClick();
               setShowHowToPlay(!showHowToPlay);
             }}
-            className="py-3 px-2 rounded-2xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 text-indigo-100 font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1 transition-transform active:scale-95 shadow"
+            className="py-3 px-2 rounded-2xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 text-indigo-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow"
           >
-            <HelpCircle className="w-5 h-5 text-cyan-400" />
-            <span>게임 방법</span>
+            <HelpCircle className="w-4 h-4 text-cyan-400" />
+            <span>게임 방법 안내</span>
           </button>
         </div>
       </div>

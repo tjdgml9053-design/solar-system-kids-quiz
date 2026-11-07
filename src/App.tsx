@@ -8,6 +8,7 @@ import { PlanetData, PlayerProfile, Badge, StageProgress } from './types/game';
 import { PLANETS_DATA } from './data/planets';
 import { BADGES_DATA } from './data/badges';
 import { StorageService } from './services/storage';
+import { FirestoreLeaderboardService } from './services/firestoreLeaderboard';
 import { soundService } from './services/sound';
 import { ttsService } from './services/tts';
 import { HeaderNav } from './components/HeaderNav';
@@ -146,13 +147,14 @@ export default function App() {
       attempts: (prevStage.attempts || 0) + 1
     };
 
-    // Unlock next planet in sequence
-    const currentIndex = PLANETS_DATA.findIndex(p => p.id === planetId);
-    if (currentIndex >= 0 && currentIndex + 1 < PLANETS_DATA.length) {
-      const nextPlanet = PLANETS_DATA[currentIndex + 1];
-      if (!currentProgress[nextPlanet.id]) {
-        currentProgress[nextPlanet.id] = {
-          planetId: nextPlanet.id,
+    // Unlock next planet in randomized sequence
+    const missionOrder = profile.missionOrder || PLANETS_DATA.map(p => p.id);
+    const currentIndex = missionOrder.indexOf(planetId);
+    if (currentIndex >= 0 && currentIndex + 1 < missionOrder.length) {
+      const nextPlanetId = missionOrder[currentIndex + 1];
+      if (!currentProgress[nextPlanetId]) {
+        currentProgress[nextPlanetId] = {
+          planetId: nextPlanetId,
           unlocked: true,
           cleared: false,
           stars: 0,
@@ -160,7 +162,7 @@ export default function App() {
           attempts: 0
         };
       } else {
-        currentProgress[nextPlanet.id].unlocked = true;
+        currentProgress[nextPlanetId].unlocked = true;
       }
     }
 
@@ -187,17 +189,38 @@ export default function App() {
     // Save immediately to browser cache
     updateProfile(updatedProfile);
 
+    // Also sync to real-time Firestore Leaderboard
+    const clearedCount = Object.values(currentProgress).filter(p => p.cleared).length;
+    FirestoreLeaderboardService.saveEntry({
+      id: updatedProfile.id,
+      name: updatedProfile.name,
+      avatar: updatedProfile.avatar,
+      badgeTitle: updatedProfile.title,
+      score: newTotalScore,
+      stars: newTotalStars,
+      clearedCount: clearedCount,
+      date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
+      isCurrentPlayer: true
+    }).catch(err => {
+      console.warn('Leaderboard sync note:', err);
+    });
+
     return { newBadges };
   };
 
   const handleNextPlanet = () => {
     if (!selectedPlanet) return;
-    const currentIndex = PLANETS_DATA.findIndex(p => p.id === selectedPlanet.id);
-    if (currentIndex >= 0 && currentIndex + 1 < PLANETS_DATA.length) {
-      setSelectedPlanet(PLANETS_DATA[currentIndex + 1]);
-    } else {
-      setActiveView('map');
+    const missionOrder = profile.missionOrder || PLANETS_DATA.map(p => p.id);
+    const currentIndex = missionOrder.indexOf(selectedPlanet.id);
+    if (currentIndex >= 0 && currentIndex + 1 < missionOrder.length) {
+      const nextPlanetId = missionOrder[currentIndex + 1];
+      const nextPlanet = PLANETS_DATA.find(p => p.id === nextPlanetId);
+      if (nextPlanet) {
+        setSelectedPlanet(nextPlanet);
+        return;
+      }
     }
+    setActiveView('map');
   };
 
   const handleOpenLicense = () => {
@@ -220,9 +243,12 @@ export default function App() {
     setActiveView('title');
   };
 
+  const missionOrder = profile.missionOrder || PLANETS_DATA.map(p => p.id);
+  const currentStageIndex = selectedPlanet ? missionOrder.indexOf(selectedPlanet.id) : -1;
   const hasNextPlanet =
     selectedPlanet !== null &&
-    PLANETS_DATA.findIndex(p => p.id === selectedPlanet.id) < PLANETS_DATA.length - 1;
+    currentStageIndex >= 0 &&
+    currentStageIndex < missionOrder.length - 1;
 
   return (
     <div className="min-h-screen bg-[#070913] text-white flex flex-col relative selection:bg-yellow-400 selection:text-indigo-950">
@@ -271,6 +297,7 @@ export default function App() {
           ) : activeView === 'map' ? (
             <SolarSystemMap
               progress={profile.progress}
+              missionOrder={profile.missionOrder}
               currentPlanetId={selectedPlanet?.id || null}
               onSelectPlanet={handleSelectPlanet}
               onOpenBadges={() => setShowBadges(true)}
@@ -280,6 +307,7 @@ export default function App() {
             <QuizScreen
               key={selectedPlanet.id}
               planet={selectedPlanet}
+              stageNumber={currentStageIndex >= 0 ? currentStageIndex + 1 : undefined}
               onBackToMap={handleBackToMap}
               onSuccess={handleStageSuccess}
               onNextPlanet={handleNextPlanet}

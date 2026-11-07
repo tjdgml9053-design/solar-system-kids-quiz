@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidLeaderboard(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 32
+        && data.score is number && data.score >= 0 && data.score <= 100000
+        && data.stars is number && data.stars >= 0 && data.stars <= 30
+        && data.clearedCount is number && data.clearedCount >= 0 && data.clearedCount <= 10;
+    }
+
+    // Public real-time leaderboard for kindergarten space explorer game
+    match /leaderboard/{entryId} {
+      allow read: if true;
+      allow create: if isValidId(entryId) && isValidLeaderboard(request.resource.data);
+      allow update: if isValidId(entryId) && isValidLeaderboard(request.resource.data);
+      allow delete: if isValidId(entryId);
+    }
+  }
+}

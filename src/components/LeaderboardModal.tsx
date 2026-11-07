@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Trophy,
@@ -8,10 +8,12 @@ import {
   Sparkles,
   Rocket,
   Edit3,
-  Check
+  Check,
+  Radio
 } from 'lucide-react';
 import { LeaderboardEntry, PlayerProfile } from '../types/game';
 import { StorageService } from '../services/storage';
+import { FirestoreLeaderboardService } from '../services/firestoreLeaderboard';
 import { soundService } from '../services/sound';
 
 interface LeaderboardModalProps {
@@ -28,6 +30,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   const [entries, setEntries] = useState<LeaderboardEntry[]>(() =>
     StorageService.getLeaderboard()
   );
+  const [isLive, setIsLive] = useState<boolean>(false);
   const [showAddFriend, setShowAddFriend] = useState<boolean>(false);
   const [newFriendName, setNewFriendName] = useState<string>('');
   const [newFriendAvatar, setNewFriendAvatar] = useState<string>('🚀');
@@ -39,13 +42,35 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
   const avatarOptions = ['🚀', '👨‍🚀', '👩‍🚀', '⭐', '🪐', '🤖', '🐱', '🐶', '🐻', '🐰'];
 
+  // Subscribe to real-time Google Firebase Firestore leaderboard updates
+  useEffect(() => {
+    const unsubscribe = FirestoreLeaderboardService.subscribeLeaderboard((liveList, liveStatus) => {
+      setEntries(liveList);
+      setIsLive(liveStatus);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleSaveMyName = () => {
     if (!myEditedName.trim()) return;
     soundService.playClick();
     const updated = { ...currentProfile, name: myEditedName.trim() };
     onUpdateProfile(updated);
     setIsEditingMyName(false);
-    setEntries(StorageService.getLeaderboard());
+
+    const clearedCount = Object.values(updated.progress).filter(p => p.cleared).length;
+    const playerEntry: LeaderboardEntry = {
+      id: updated.id,
+      name: updated.name,
+      avatar: updated.avatar,
+      badgeTitle: updated.title,
+      score: updated.scoreTotal,
+      stars: updated.starsTotal,
+      clearedCount: clearedCount,
+      date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
+      isCurrentPlayer: true
+    };
+    FirestoreLeaderboardService.saveEntry(playerEntry);
   };
 
   const handleAddFriend = (e: React.FormEvent) => {
@@ -64,8 +89,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
       date: new Date().toISOString().split('T')[0].replace(/-/g, '.')
     };
 
-    const updatedList = StorageService.saveLeaderboardEntry(newEntry);
-    setEntries(updatedList);
+    FirestoreLeaderboardService.saveEntry(newEntry);
     setNewFriendName('');
     setShowAddFriend(false);
   };
@@ -73,8 +97,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   const handleDeleteEntry = (id: string, name: string) => {
     if (confirm(`'${name}' 친구 기록을 삭제할까요?`)) {
       soundService.playClick();
-      const updatedList = StorageService.deleteLeaderboardEntry(id);
-      setEntries(updatedList);
+      FirestoreLeaderboardService.deleteEntry(id);
     }
   };
 
@@ -88,11 +111,23 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               <Trophy className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                우주 탐험가 명예의 전당 🏆
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                  우주 탐험가 명예의 전당 🏆
+                </h2>
+                {isLive ? (
+                  <span className="hidden xs:inline-flex items-center gap-1 text-[11px] font-black text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-400/40 animate-pulse">
+                    <Radio className="w-3 h-3 text-emerald-400" />
+                    파이어베이스 실시간
+                  </span>
+                ) : (
+                  <span className="hidden xs:inline-flex items-center gap-1 text-[11px] font-bold text-yellow-300 bg-yellow-950/80 px-2 py-0.5 rounded-full border border-yellow-400/30">
+                    캐시 저장 모드
+                  </span>
+                )}
+              </div>
               <p className="text-xs sm:text-sm text-indigo-300 font-bold">
-                브라우저에 영구 저장되는 친구들과의 점수 랭킹!
+                구글 파이어베이스 실시간 DB & 브라우저 영구 캐시 연동 랭킹!
               </p>
             </div>
           </div>

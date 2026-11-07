@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Star, Lock, CheckCircle2, Rocket, Sparkles, Trophy } from 'lucide-react';
 import { PlanetData, StageProgress } from '../types/game';
 import { PLANETS_DATA } from '../data/planets';
@@ -7,6 +7,7 @@ import { soundService } from '../services/sound';
 
 interface SolarSystemMapProps {
   progress: Record<string, StageProgress>;
+  missionOrder?: string[];
   currentPlanetId: string | null;
   onSelectPlanet: (planet: PlanetData) => void;
   onOpenBadges: () => void;
@@ -15,12 +16,22 @@ interface SolarSystemMapProps {
 
 export const SolarSystemMap: React.FC<SolarSystemMapProps> = ({
   progress,
+  missionOrder,
   onSelectPlanet,
   onOpenBadges,
   onOpenLeaderboard,
 }) => {
   const totalStars = Object.values(progress).reduce((acc, p) => acc + (p.stars || 0), 0);
   const clearedStages = Object.values(progress).filter(p => p.cleared).length;
+
+  // Map planets in randomized mission order
+  const planetsList = useMemo(() => {
+    if (missionOrder && missionOrder.length === PLANETS_DATA.length) {
+      const map = new Map(PLANETS_DATA.map(p => [p.id, p]));
+      return missionOrder.map(id => map.get(id)).filter(Boolean) as PlanetData[];
+    }
+    return PLANETS_DATA;
+  }, [missionOrder]);
 
   const handleStageClick = (planet: PlanetData, isUnlocked: boolean) => {
     if (!isUnlocked) {
@@ -87,7 +98,7 @@ export const SolarSystemMap: React.FC<SolarSystemMapProps> = ({
 
       {/* Orbit Stages Grid / Path */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 pt-2">
-        {PLANETS_DATA.map((planet, index) => {
+        {planetsList.map((planet, index) => {
           const stageProg = progress[planet.id] || {
             unlocked: index === 0,
             cleared: false,
@@ -110,7 +121,7 @@ export const SolarSystemMap: React.FC<SolarSystemMapProps> = ({
               {/* Order Step Badge */}
               <div className="w-full flex items-center justify-between mb-2">
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-800/80 text-indigo-200 border border-indigo-400/30">
-                  {planet.order}단계
+                  {index + 1}단계
                 </span>
                 {isCleared ? (
                   <span className="flex items-center gap-1 text-xs font-black text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-400/40">

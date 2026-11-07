@@ -2,9 +2,9 @@ import { LeaderboardEntry, PlayerProfile, StageProgress } from '../types/game';
 import { PLANETS_DATA } from '../data/planets';
 
 const STORAGE_KEYS = {
-  CURRENT_PROFILE: 'SOLAR_EXPLORER_PROFILE_V3',
-  LEADERBOARD: 'SOLAR_EXPLORER_LEADERBOARD_V3',
-  PROFILES_LIST: 'SOLAR_EXPLORER_ALL_PROFILES_V3',
+  CURRENT_PROFILE: 'SOLAR_EXPLORER_PROFILE_V4',
+  LEADERBOARD: 'SOLAR_EXPLORER_LEADERBOARD_V4',
+  PROFILES_LIST: 'SOLAR_EXPLORER_ALL_PROFILES_V4',
 };
 
 const INITIAL_LEADERBOARD: LeaderboardEntry[] = [
@@ -60,12 +60,27 @@ const INITIAL_LEADERBOARD: LeaderboardEntry[] = [
   }
 ];
 
-function generateDefaultProgress(): Record<string, StageProgress> {
+export function generateRandomMissionOrder(): string[] {
+  const ids = PLANETS_DATA.map(p => p.id);
+  // Fisher-Yates shuffle
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = ids[i];
+    ids[i] = ids[j];
+    ids[j] = temp;
+  }
+  return ids;
+}
+
+function generateDefaultProgress(missionOrder?: string[]): Record<string, StageProgress> {
+  const order = missionOrder && missionOrder.length === PLANETS_DATA.length
+    ? missionOrder
+    : PLANETS_DATA.map(p => p.id);
   const progress: Record<string, StageProgress> = {};
-  PLANETS_DATA.forEach((planet, index) => {
-    progress[planet.id] = {
-      planetId: planet.id,
-      unlocked: index === 0, // First planet (Sun) is unlocked by default
+  order.forEach((planetId, index) => {
+    progress[planetId] = {
+      planetId,
+      unlocked: index === 0, // First planet in the randomized sequence is unlocked!
       cleared: false,
       stars: 0,
       bestScore: 0,
@@ -82,11 +97,14 @@ export const StorageService = {
       const cached = localStorage.getItem(STORAGE_KEYS.CURRENT_PROFILE);
       if (cached) {
         const parsed = JSON.parse(cached) as PlayerProfile;
-        // Merge in case planets were added or progress missing keys
-        const defaultProgress = generateDefaultProgress();
+        const missionOrder = Array.isArray(parsed.missionOrder) && parsed.missionOrder.length === PLANETS_DATA.length
+          ? parsed.missionOrder
+          : generateRandomMissionOrder();
+        const defaultProgress = generateDefaultProgress(missionOrder);
         const mergedProgress = { ...defaultProgress, ...(parsed.progress || {}) };
         return {
           ...parsed,
+          missionOrder,
           progress: mergedProgress,
           badges: parsed.badges || []
         };
@@ -95,6 +113,7 @@ export const StorageService = {
       console.warn('Storage read failed, falling back to default profile:', e);
     }
 
+    const missionOrder = generateRandomMissionOrder();
     const newProfile: PlayerProfile = {
       id: 'pilot_' + Date.now().toString(36),
       name: '새싹 우주비행사',
@@ -102,7 +121,8 @@ export const StorageService = {
       title: '용감한 7세 탐험가',
       starsTotal: 0,
       scoreTotal: 0,
-      progress: generateDefaultProgress(),
+      missionOrder,
+      progress: generateDefaultProgress(missionOrder),
       badges: [],
       ttsEnabled: true,
       soundEnabled: true,
@@ -211,14 +231,16 @@ export const StorageService = {
     this.saveLeaderboardEntry(playerEntry);
   },
 
-  // Reset progress while keeping leaderboard friends
+  // Reset progress with fresh randomized mission order while keeping leaderboard friends
   resetCurrentProfile(): PlayerProfile {
     const profile = this.getProfile();
+    const newMissionOrder = generateRandomMissionOrder();
     const freshProfile: PlayerProfile = {
       ...profile,
       starsTotal: 0,
       scoreTotal: 0,
-      progress: generateDefaultProgress(),
+      missionOrder: newMissionOrder,
+      progress: generateDefaultProgress(newMissionOrder),
       badges: []
     };
     this.saveProfile(freshProfile);

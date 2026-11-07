@@ -20,6 +20,7 @@ import { ttsService } from '../services/tts';
 
 interface QuizScreenProps {
   planet: PlanetData;
+  stageNumber?: number;
   onBackToMap: () => void;
   onSuccess: (planetId: string, stars: number, score: number) => { newBadges: Badge[] };
   onNextPlanet?: () => void;
@@ -28,6 +29,7 @@ interface QuizScreenProps {
 
 export const QuizScreen: React.FC<QuizScreenProps> = ({
   planet,
+  stageNumber,
   onBackToMap,
   onSuccess,
   onNextPlanet,
@@ -175,7 +177,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         </button>
 
         <div className="flex items-center gap-2 bg-indigo-950/70 border border-indigo-400/30 px-3.5 py-1.5 rounded-2xl">
-          <span className="text-xs text-yellow-300 font-bold">{planet.order}단계 행성 탐험</span>
+          <span className="text-xs text-yellow-300 font-bold">{(stageNumber ?? planet.order)}단계 행성 탐험</span>
           <span className="text-white font-black text-sm">
             {isAnsweredCorrectly ? planet.name : '?? 수수께끼 별'}
           </span>
